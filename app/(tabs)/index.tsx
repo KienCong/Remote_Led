@@ -1,98 +1,104 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import Slider from '@react-native-community/slider';
+import React, { useState } from 'react';
+import { SafeAreaView, StyleSheet, Switch, Text, View } from 'react-native';
+import { updateBrightness, updatePowerStatus } from '../../firebaseService';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function App() {
+  // Khai báo rõ kiểu dữ liệu cho State
+  const [isPowerOn, setIsPowerOn] = useState<boolean>(false);
+  const [brightness, setBrightness] = useState<number>(0);
 
-export default function HomeScreen() {
+  const toggleSwitch = (value: boolean) => {
+    // Ép kiểu boolean (đúng/sai) cho tham số value của công tắc
+    setIsPowerOn(value);
+    // GỌI API FIREBASE: Cập nhật trạng thái Bật/Tắt
+    updatePowerStatus(value);
+    console.log(" Trạng thái công tắc hiện tại:", value ? "ON" : "OFF");
+  };
+
+  // Ép kiểu number (số nguyên/thực) cho tham số value của thanh trượt
+  const handleSliderComplete = (value: number) => {
+    const intValue = Math.round(value);
+    setBrightness(intValue);
+    // GỌI API FIREBASE: Cập nhật độ sáng
+    updateBrightness(intValue);
+    console.log("Độ sáng thiết lập:", intValue);
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.card}>
+        <Text style={styles.title}>Điều Khiển LED </Text>
+        
+        {/* Khu vực công tắc */}
+        <View style={styles.row}>
+          <Text style={styles.label}>Trạng thái: {isPowerOn ? "ĐANG BẬT" : "ĐANG TẮT"}</Text>
+          <Switch
+            value={isPowerOn}
+            onValueChange={toggleSwitch}
+            trackColor={{ false: '#767577', true: '#81b0ff' }}
+            thumbColor={isPowerOn ? '#007AFF' : '#f4f3f4'}
+          />
+        </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        {/* Khu vực thanh trượt */}
+        <View style={styles.sliderContainer}>
+          <Text style={styles.label}>Độ sáng: {brightness}</Text>
+          <Slider
+            style={{ width: 250, height: 40 }}
+            minimumValue={0}
+            maximumValue={255}
+            value={brightness}
+            onSlidingComplete={handleSliderComplete}
+            minimumTrackTintColor="#007AFF"
+            maximumTrackTintColor="#000000"
+          />
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#F2F2F7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  card: {
+    backgroundColor: 'white',
+    padding: 30,
+    borderRadius: 20,
+    width: '85%',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 30,
+    color: '#333',
+  },
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 40,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  sliderContainer: {
+    width: '100%',
+    alignItems: 'center',
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+  label: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#555',
+    marginBottom: 10,
+  }
 });
