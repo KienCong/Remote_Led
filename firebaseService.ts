@@ -1,7 +1,6 @@
 // Import thư viện xử lý dữ liệu của Firebase
 import { ref, set } from 'firebase/database';
-// Import biến 'db' đã được khởi tạo từ file config của bạn
-// Lưu ý: Đảm bảo đường dẫn './firebaseConfig' khớp với tên file thực tế
+
 import { db } from './firebaseConfig';
 
 // Hàm cập nhật trạng thái Bật/Tắt

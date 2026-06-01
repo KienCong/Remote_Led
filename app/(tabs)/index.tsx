@@ -9,18 +9,18 @@ export default function App() {
   const [brightness, setBrightness] = useState<number>(0);
 
   const toggleSwitch = (value: boolean) => {
-    // Ép kiểu boolean (đúng/sai) cho tham số value của công tắc
+    // Ép kiểu boolean (đúng/sai) cho công tắc
     setIsPowerOn(value);
     // GỌI API FIREBASE: Cập nhật trạng thái Bật/Tắt
     updatePowerStatus(value);
     console.log(" Trạng thái công tắc hiện tại:", value ? "ON" : "OFF");
   };
 
-  // Ép kiểu number (số nguyên/thực) cho tham số value của thanh trượt
+  // Ép kiểu number (số nguyên/thực) cho thanh trượt
   const handleSliderComplete = (value: number) => {
     const intValue = Math.round(value);
     setBrightness(intValue);
-    // GỌI API FIREBASE: Cập nhật độ sáng
+    // GỌI API FIREBASE: Cập nhật
     updateBrightness(intValue);
     console.log("Độ sáng thiết lập:", intValue);
   };
